@@ -2,8 +2,8 @@
 メメントモリの戦闘力を調整するための計算ツールです。
 
 ## 使用方法
-1. RuneCalcurator.exe と rune.csv を同じフォルダに保存。
-2. RuneCalculator.exe をダブルクリック。
+1. [ここ](https://github.com/Taakunyan/RuneCalculator/releases/)から __RuneCalcurator.exe__ と __rune.csv__ をダウンロードし、同じフォルダに保存。
+2. __RuneCalculator.exe__ をダブルクリック。
 3. Current Power ... 現在の戦闘力をコンマ（,）なしで入力。
 4. Target Power ... 目標の戦闘力をコンマ（,）なしで入力。
 5. Number of runes ... 使用するルーンの個数を入力。
@@ -21,7 +21,7 @@
 
 ## 注意事項
 Number of runes が増えると計算量が指数関数的に増加します。小さい数から順番に実行することをお勧めします。<br>
-rune.csv はShift-JIS で保存してください。 他の文字コードで保存すると文字化けします。<br>
+__rune.csv__ は Shift-JIS で保存してください。 他の文字コードで保存すると文字化けします。<br>
 キャラクターや、武器の強化レベルによって戦闘力が変わることがあります。
 
 ## ChangeLog
