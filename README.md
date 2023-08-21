@@ -13,7 +13,7 @@
 ※ [ ] は必須、( )はオプションです。 デフォルトでは Number of runes は 6 に設定されています。
 
 ## 表示
-[img]
+[img](https://github.com/Taakunyan/RuneCalculator/blob/main/cmd.png)
 ① ルーンを装着することで上がる戦闘力<br>
 ② 装着するルーンのレベル<br>
 ③ 装着するルーンの名前 （攻撃系（右側）のルーンは赤色、防御系（左側）のルーンは緑色で表示されます。）<br>
