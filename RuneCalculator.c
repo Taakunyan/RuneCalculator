@@ -6,7 +6,7 @@
 #define BUFFER 1024
 
 void errorArgument(char *commandName){
-    fprintf(stderr, "Error: Argument error.\nUsage : %s [Current Power] [Target Power] (Max Num of Runes)\n", commandName);
+    fprintf(stderr, "Error: Argument error.\nUsage: %s [Current Power] [Target Power] (Max Num of Runes)\n", commandName);
     exit(-1);
 }
 void errorCannotAllocateMemory(size_t size){
@@ -103,6 +103,17 @@ struct Data *dequeue(struct Queue **head){
     free(tmp);
     return data;
 }
+unsigned int len(struct Queue *head){
+    if(head == NULL)return 0;
+    return len(head->next) + 1;
+}
+void freeQueue(struct Queue *head){
+    if(head == NULL)return;
+    freeQueue(head->next);
+    free(head->data->pair);
+    free(head->data);
+    free(head);
+}
 struct Data *mallocData(unsigned int *pair, unsigned int ptr, unsigned int sum, unsigned int current){
     struct Data *data;
     if((data = (struct Data*)malloc(sizeof(struct Data))) == NULL)errorCannotAllocateMemory(sizeof(struct Data));
@@ -133,7 +144,34 @@ struct Node *readCSV(char *fileName){
     return root;
 }
 
-struct Queue *searchPair(unsigned int array[], unsigned int array_size, unsigned int target, unsigned int max){
+void consoleWriteLine(unsigned int *pair, unsigned int runeNum, struct Node *root){
+    unsigned int flag;
+    struct Node **tmp;
+    for(unsigned int i = 0; i < 23 * runeNum; i++)printf("-");
+    printf("\n");
+    if((tmp = (struct Node**)malloc(sizeof(struct Node*) * runeNum)) == NULL)errorCannotAllocateMemory(sizeof(struct Node) * runeNum);
+    for(unsigned int i = 0; i < runeNum; i++){
+        printf("\x1b[33m%-23d\x1b[39m",pair[i]);
+        tmp[i] = searchNode(root, pair[i]);
+    }
+    printf("\n");
+    do{
+        flag = 0;
+        for(unsigned int i = 0; i < runeNum; i++){
+            if(tmp[i] == NULL){
+                printf("                       ");
+                continue;
+            }
+            printf("\x1b[39m%2d\x1b[%dm %-20s\x1b[39m", tmp[i]->rune->level, !strcmp(tmp[i]->rune->type, "UŒ‚") ? 31 : !strcmp(tmp[i]->rune->type, "–hŒä")? 32 : 39, tmp[i]->rune->name);
+            tmp[i] = tmp[i]->center;
+            flag = 1;
+        }
+        printf("\n");
+    }while(flag);
+    free(tmp);
+}
+
+struct Queue *searchPair(unsigned int array[], unsigned int array_size, unsigned int target, unsigned int max, struct Node *root){
     struct Queue *head = NULL, *tail = NULL, *ans_head = NULL, *ans_tail = NULL;
     struct Data *data;
     unsigned int *pair = NULL, sum;
@@ -144,7 +182,10 @@ struct Queue *searchPair(unsigned int array[], unsigned int array_size, unsigned
             if((pair = (unsigned int*)malloc(sizeof(unsigned int) * (data->ptr + 1))) == NULL)errorCannotAllocateMemory(sizeof(unsigned int) * (data->ptr + 1));
             for(unsigned int i = 0; i < data->ptr; i++)pair[i] = data->pair[i];
             pair[data->ptr] = array[index];
-            if(sum == target)enqueue(&ans_head, &ans_tail, mallocData(pair, data->ptr + 1, sum, index));
+            if(sum == target){
+                enqueue(&ans_head, &ans_tail, mallocData(pair, data->ptr + 1, sum, index));
+                consoleWriteLine(pair, data->ptr + 1, root);
+            }
             else if(data->ptr + 1 == max)free(pair);
             else enqueue(&head, &tail, mallocData(pair, data->ptr + 1, sum, index));
         }
@@ -154,49 +195,14 @@ struct Queue *searchPair(unsigned int array[], unsigned int array_size, unsigned
     return ans_head;
 }
 
-void consoleWrite(struct Queue *ans, struct Node *root){
-    unsigned int flag = 0;
-    struct Node **tmp;
-    struct Data *data;
-    while((data = dequeue(&ans)) != NULL){
-        for(unsigned int i = 0; i < 23 * data->ptr; i++)printf("-");
-        printf("\n");
-        if((tmp = (struct Node**)malloc(sizeof(struct Node*) * data->ptr)) == NULL)errorCannotAllocateMemory(sizeof(struct Node) * data->ptr);
-        for(unsigned int i = 0; i < data->ptr; i++){
-            printf("\x1b[33m%-23d\x1b[39m",data->pair[i]);
-            tmp[i] = searchNode(root, data->pair[i]);
-        }
-        printf("\n");
-        do{
-            flag = 0;
-            for(unsigned int i = 0; i < data->ptr; i++){
-                if(tmp[i] == NULL){
-                    printf("                       ");
-                    continue;
-                }
-                printf("\x1b[39m%2d\x1b[%dm %-20s\x1b[39m", tmp[i]->rune->level, !strcmp(tmp[i]->rune->type, "UŒ‚") ? 31 : !strcmp(tmp[i]->rune->type, "–hŒä")? 32 : 39, tmp[i]->rune->name);
-                tmp[i] = tmp[i]->center;
-                flag = 1;
-            }
-            printf("\n");
-        }while(flag);
-        flag = data->ptr;
-        free(data->pair);
-        free(data);
-        free(tmp);
-    }
-    if(flag)for(unsigned int i = 0; i < 23 * flag; i++)printf("-");
-    printf("\n");
-}
-
 int main(int argc, char *argv[]){
     unsigned int currentPower, targetPower, diffPower, runeNum;
     if(argc == 1){
-        printf("Current Power : ");
+        printf("Œ»Ýí“¬—Í : ");
         scanf("%d", &currentPower);
-        printf("Target Power  : ");
+        printf("–Ú•Wí“¬—Í : ");
         scanf("%d", &targetPower);
-        printf("Number of runes : ");
+        printf("ƒ‹[ƒ“” : ");
         scanf("%d", &runeNum);
         diffPower = targetPower - currentPower;
     }
@@ -208,13 +214,24 @@ int main(int argc, char *argv[]){
     struct Node *root;
     struct Queue *ans;
     unsigned int *array, array_size;
+    unsigned char moji;
     root = readCSV(CSV_FILE);
     if((array = (unsigned int*)malloc(sizeof(unsigned int) * (array_size = countNode(root, 0)))) == NULL)errorCannotAllocateMemory(sizeof(unsigned int) * array_size);
     tree2intArray(root, array, 0, 0);
-    ans = searchPair(array, array_size, diffPower, runeNum);
-    consoleWrite(ans, root);
+    while(1){
+        ans = searchPair(array, array_size, diffPower, runeNum, root);
+        if(ans)printf("%d ’Ê‚èŒ©‚Â‚©‚è‚Ü‚µ‚½B\n", len(ans));
+        else printf("Œ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½B\n");
+        freeQueue(ans);
+        runeNum++;
+        input:
+        printf("ƒ‹[ƒ“‚ð %d ŒÂ‚É‘‚â‚µ‚Ä’Tõ‚µ‚Ü‚·‚©H(y/n) : ", runeNum);
+        scanf(" %c", &moji);
+        if(moji == 'n')break;
+        else if(moji == 'y')continue;
+        else goto input;
+    }
     free(array);
     freeTree(root);
-    system("PAUSE");
     return 0;
 }
